@@ -126,9 +126,6 @@ class FEM_linear:
                     
             rows += [ gn[iel,0], gn[iel,0], gn[iel,1], gn[iel,1] ]
             cols += [ gn[iel,0], gn[iel,1], gn[iel,0], gn[iel,1] ]    
-#            print(rows)
-#            print(cols)
-#            print(entries)
             entries += list(local_A.flatten())
             
         A = scipy.sparse.csr_matrix((entries, (rows, cols)), shape=(self.n, self.n))
