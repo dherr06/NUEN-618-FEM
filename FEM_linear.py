@@ -119,7 +119,7 @@ class FEM_linear:
             entries += list(local_A.flatten())
             
         A = scipy.sparse.csr_matrix((entries, (rows, cols)), shape=(self.n, self.n))
-        res = A.dot(T) - 1e-3
+        res = A.dot(T) - rhs
         if printout:
             print("\nMatrix A:-----------------------")
             print(A)
