@@ -107,10 +107,11 @@ class FEM_linear:
             if iel==self.MESH.n_el-1:
                 bc_ = self.BC[1]
                 if bc_.get('type')=='dir':
-                    local_A[0,0] = 1/Jac * self.GL.wq[0] * MAT.k(300*b[0,0]) * dbdx[0,0] * dbdx[0,0] + (1/Jac * self.GL.wq[1] * MAT.k(300*b[1,0]) * dbdx[1,0] * dbdx[1,0])
-                    local_A[0,1] = 1/Jac * self.GL.wq[0] * MAT.k(300*b[0,0]) * dbdx[0,0] * dbdx[0,1] + (1/Jac * self.GL.wq[1] * MAT.k(300*b[1,0]) * dbdx[1,0] * dbdx[1,1])
-                    local_A[1,0] = 1/Jac * self.GL.wq[0] * MAT.k(300*b[0,1]) * dbdx[0,1] * dbdx[0,0] + (1/Jac * self.GL.wq[1] * MAT.k(300*b[1,1]) * dbdx[1,1] * dbdx[1,0])
-                    local_A[1,1] = 1/Jac * self.GL.wq[0] * MAT.k(300*b[0,1]) * dbdx[0,1] * dbdx[0,1] + (1/Jac * self.GL.wq[1] * MAT.k(300*b[1,1]) * dbdx[1,1] * dbdx[1,1])
+                    val = bc_.get('value')
+                    local_A[0,0] = 1/Jac * self.GL.wq[0] * MAT.k(val*b[0,0]) * dbdx[0,0] * dbdx[0,0] + (1/Jac * self.GL.wq[1] * MAT.k(val*b[1,0]) * dbdx[1,0] * dbdx[1,0])
+                    local_A[0,1] = 1/Jac * self.GL.wq[0] * MAT.k(val*b[0,0]) * dbdx[0,0] * dbdx[0,1] + (1/Jac * self.GL.wq[1] * MAT.k(val*b[1,0]) * dbdx[1,0] * dbdx[1,1])
+                    local_A[1,0] = 1/Jac * self.GL.wq[0] * MAT.k(val*b[0,1]) * dbdx[0,1] * dbdx[0,0] + (1/Jac * self.GL.wq[1] * MAT.k(val*b[1,1]) * dbdx[1,1] * dbdx[1,0])
+                    local_A[1,1] = 1/Jac * self.GL.wq[0] * MAT.k(val*b[0,1]) * dbdx[0,1] * dbdx[0,1] + (1/Jac * self.GL.wq[1] * MAT.k(val*b[1,1]) * dbdx[1,1] * dbdx[1,1])
                 else:
                     raise Exception("Unknown left BC type")
                     
