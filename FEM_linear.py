@@ -11,13 +11,13 @@ import scipy.sparse.linalg
 
 class FEM_linear:
     
-    def __init__(self, GL, MESH, XS, Q, BC, porder=1, printout=False):
+    def __init__(self, GL, MESH, MAT, Q, BC, porder=1, printout=False):
         self.porder = porder
         self.printout = printout
         self.n = MESH.n_el * porder + 1
         # The entries below are passed by reference, no need to worry about copies/memory
         self.MESH = MESH
-        self.XS = XS
+        self.MAT = MAT
         self.Q = Q
         self.GL = GL
         self.BC = BC
@@ -87,20 +87,13 @@ class FEM_linear:
         for iel in range(self.MESH.n_el):
             
             Jac = self.MESH.dx[iel] /2.
-            imat = self.MESH.iel2mat[iel]
-            isrc = self.MESH.iel2src[iel]
-            D = self.XS.D[imat]
-            Siga = self.XS.Siga[imat]
-            qext = self.Q.qext[isrc]
-            
             local_A = np.zeros((p+1, p+1))
             for q in range(self.GL.n_qpts):
                 for i in range(p+1):
                     #print(iel,i,gn[iel,i])
-                    rhs[gn[iel,i]] +=  self.GL.wq[q] * b[q,i] * qext * Jac
+                    rhs[gn[iel,i]] +=  self.GL.wq[q] * b[q,i]  * Jac * src[iel,q]
                     for j in range(p+1):
-                        local_A[i,j] +=  self.GL.wq[q] * \
-                            ( b[q,i] *b[q,j] * Siga * Jac + dbdx[q,i] * dbdx[q,j] * D / Jac )
+                        local_A[i,j] += 1/Jac * self.GL.wq[q] * self.MAT.k(T,b[q,i]) * dbdx[q,i] * dbdx[q,j]
 
             # left BC:
             if iel==0:
