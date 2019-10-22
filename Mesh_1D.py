@@ -10,9 +10,7 @@ class Mesh_1D:
         self.n_zones = len(zone_subdivision)
         self.n_el = sum(zone_subdivision)
         self.x = np.zeros([self.n_el + 1])
-        self.dx = np.zeros([self.n_el])
-        self.iel2mat = []
-        self.iel2src = [] 
+        self.dx = np.zeros([self.n_el]) 
         self.porder = porder
         self.printout = printout
 
@@ -48,11 +46,6 @@ class Mesh_1D:
         for i in range(self.n_el):
             self.dx[i] = self.x[i + 1] - self.x[i]
             
-        # loop over zones to compute cell-2-mat and cell-2-src arrays
-        for i in range(self.n_zones):
-            self.iel2mat += [material_zone[i]] * zone_subdivision[i]
-            self.iel2src += [source_zone[i]] * zone_subdivision[i]
-
         # create connectivity array
         gn = np.zeros((self.n_el, self.porder+1), dtype=int)
         gn[0,:] = np.linspace(0, self.porder, self.porder+1)
@@ -67,10 +60,6 @@ class Mesh_1D:
             print(self.x)
             print("dx")
             print(self.dx)
-            print("element to mat")
-            print(self.iel2mat)
-            print("element to src")
-            print(self.iel2src)
             print("connectivity array")
             print(gn)
 
