@@ -90,22 +90,16 @@ class FEM_linear:
             local_A = np.zeros((p+1, p+1))
             for q in range(self.GL.n_qpts):
                 for i in range(p+1):
-                    rhs[gn[iel,i]] +=  self.GL.wq[q] * b[q,i]  * Jac * src[iel,q]
                     for j in range(p+1):
                         local_A[i,j] += 1/Jac * self.GL.wq[q] * MAT.k(T*b[q,i]) * dbdx[q,i] * dbdx[q,j]
+                        rhs[gn[iel,i]] += Jac * self.GL.wq[q] * b[q,i] * b[q,j] * 1e-3
 
             # left BC:
             if iel==0:
                 bc_ = self.BC[0]
-                if bc_.get('type')=='dir':
-                    local_A[0,:] = 0.
-                    local_A[0,0] = 1.
-                    rhs[gn[iel,0]] = bc_.get('val')
-                elif bc_.get('type')=='neu':
-                    rhs[gn[iel,0]] += bc_.get('val')
-                elif bc_.get('type')=='rob':
-                    local_A[0,0] += 1./2.
-                    rhs[gn[iel,0]] += 2. * bc_.get('val')
+                if bc_.get('type')=='neu':
+                    local_A[0,:] = 0
+                    local_A[1,:] = 0
                 else:
                     raise Exception("Unknown left BC type")
         
@@ -117,7 +111,6 @@ class FEM_linear:
                     local_A[0,1] = 1/Jac * self.GL.wq[0] * MAT.k(300*b[0,0]) * dbdx[0,0] * dbdx[0,1] + (1/Jac * self.GL.wq[1] * MAT.k(300*b[1,0]) * dbdx[1,0] * dbdx[1,1])
                     local_A[1,0] = 1/Jac * self.GL.wq[0] * MAT.k(300*b[0,1]) * dbdx[0,1] * dbdx[0,0] + (1/Jac * self.GL.wq[1] * MAT.k(300*b[1,1]) * dbdx[1,1] * dbdx[1,0])
                     local_A[1,1] = 1/Jac * self.GL.wq[0] * MAT.k(300*b[0,1]) * dbdx[0,1] * dbdx[0,1] + (1/Jac * self.GL.wq[1] * MAT.k(300*b[1,1]) * dbdx[1,1] * dbdx[1,1])
-                    rhs[gn[iel,p]] = bc_.get('val')
                 else:
                     raise Exception("Unknown left BC type")
                     
@@ -126,8 +119,7 @@ class FEM_linear:
             entries += list(local_A.flatten())
             
         A = scipy.sparse.csr_matrix((entries, (rows, cols)), shape=(self.n, self.n))
-        
-        solution = scipy.sparse.linalg.spsolve(A, rhs)
+        res = A.dot(T) - 1e-3
         if printout:
             print("\nMatrix A:-----------------------")
             print(A)
@@ -135,4 +127,4 @@ class FEM_linear:
             print(rhs)
             print("\nSolution:-----------------------")
             print(solution)
-        return solution
+        return res
