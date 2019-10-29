@@ -90,7 +90,7 @@ class FEM_nonlinear:
             for q in range(self.GL.n_qpts):
                 for i in range(p+1):
                     for j in range(p+1):
-                        local_A[i,j] += 1/Jac * self.GL.wq[q] * MAT.k(T[iel+j]*b[q,j]) * dbdx[q,i] * dbdx[q,j]
+                        local_A[i,j] += 1/Jac * self.GL.wq[q] * MAT.k((T[iel]*b[q,0]) + (T[iel + 1]*b[q,1])) * dbdx[q,i] * dbdx[q,j]
                         rhs[iel+j] += Jac * self.GL.wq[q] * b[q,i] * b[q,j] * 3e4
 
             # left BC:
@@ -106,9 +106,9 @@ class FEM_nonlinear:
                 bc_ = self.BC[1]
                 if bc_.get('type')=='dir':
                     val = bc_.get('val')
-                    local_A[0,1] = (1/Jac * self.GL.wq[0] * MAT.k(val*b[0,1]) * dbdx[0,0] * dbdx[0,1]) + (1/Jac * self.GL.wq[1] * MAT.k(val*b[1,1]) * dbdx[1,0] * dbdx[1,1])
-                    local_A[1,0] += (1/Jac * 0.5 *MAT.k(T[iel]))
-                    local_A[1,1] = (1/Jac * self.GL.wq[0] * MAT.k(val*b[0,1]) * dbdx[0,1] * dbdx[0,1]) + (1/Jac * self.GL.wq[1] * MAT.k(val*b[1,1]) * dbdx[1,1] * dbdx[1,1]) - (1/Jac * 0.5 * MAT.k(val))
+                    local_A[0,1] = (1/Jac * self.GL.wq[0] * MAT.k((val*b[0,0]) + (val*b[0,1])) * dbdx[0,0] * dbdx[0,1]) + (1/Jac * self.GL.wq[1] * MAT.k((val*b[1,0]) + (val*b[1,1])) * dbdx[1,0] * dbdx[1,1])
+                    local_A[1,0] += (1/Jac * 0.5 *MAT.k(val))
+                    local_A[1,1] = (1/Jac * self.GL.wq[0] * MAT.k((val*b[0,0]) + (val*b[0,1])) * dbdx[0,1] * dbdx[0,1]) + (1/Jac * self.GL.wq[1] * MAT.k((val*b[1,0]) + (val*b[1,1])) * dbdx[1,1] * dbdx[1,1]) - (1/Jac * 0.5 * MAT.k(val))
                 else:
                     raise Exception("Unknown left BC type")
                     

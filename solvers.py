@@ -26,3 +26,8 @@ class non_linear:
                 print('Max iterations hit, exiting')
                 sys.exit()
         return x_new
+    
+    def matrix_free_newton(x,func,tol=1e-5):
+        diff = 1
+        while diff > tol:
+            return 
