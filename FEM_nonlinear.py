@@ -57,7 +57,8 @@ class FEM_nonlinear:
         return func(x)
     """
     
-    def assemble_system(self,T,printout=False):
+    def assemble_system(self,T):
+        printout = self.printout
     
         # hardcoding linear basis functions in [-1,+1]
         bf = lambda i, x: (1-x)/2. if (i==0) else (1+x)/2. 
@@ -106,11 +107,11 @@ class FEM_nonlinear:
                 bc_ = self.BC[1]
                 if bc_.get('type')=='dir':
                     val = bc_.get('val')
-                    local_A[0,1] = (1/Jac * self.GL.wq[0] * MAT.k((val*b[0,0]) + (val*b[0,1])) * dbdx[0,0] * dbdx[0,1]) + (1/Jac * self.GL.wq[1] * MAT.k((val*b[1,0]) + (val*b[1,1])) * dbdx[1,0] * dbdx[1,1])
-                    local_A[1,0] += (1/Jac * 0.5 *MAT.k(val))
-                    local_A[1,1] = (1/Jac * self.GL.wq[0] * MAT.k((val*b[0,0]) + (val*b[0,1])) * dbdx[0,1] * dbdx[0,1]) + (1/Jac * self.GL.wq[1] * MAT.k((val*b[1,0]) + (val*b[1,1])) * dbdx[1,1] * dbdx[1,1]) - (1/Jac * 0.5 * MAT.k(val))
+                    local_A[1,0] = 0
+                    local_A[1,1] = 1
+                    rhs[iel+1] = val
                 else:
-                    raise Exception("Unknown left BC type")
+                    raise Exception("Unknown right BC type")
                     
             rows += [ gn[iel,0], gn[iel,0], gn[iel,1], gn[iel,1] ]
             cols += [ gn[iel,0], gn[iel,1], gn[iel,0], gn[iel,1] ]    

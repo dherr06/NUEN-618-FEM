@@ -2,7 +2,7 @@ import numpy as np
 import scipy.sparse.linalg as spla
 class non_linear:
     
-    def Newton(x,func,epsilon=1e-8,lin_solve='direct',tol=1e-5):
+    def Newton(x,func,epsilon=1e-6,lin_solve='direct',tol=1e-4):
         '''
         Performs a non linear solve using a finite difference Jacobian
         '''
@@ -25,9 +25,23 @@ class non_linear:
             if index == 99:
                 print('Max iterations hit, exiting')
                 sys.exit()
-        return x_new
+        return x_new, index
     
-    def matrix_free_newton(x,func,tol=1e-5):
+    def matrix_free_newton(x,func,epsilon=1e-8,tol=1e-4):
+        
+        def Jv(v):
+            return (func(x + epsilon*v) - func(x))/epsilon
+        L = spla.LinearOperator((x.shape[0],x.shape[0]),Jv)
+        
         diff = 1
+        index = 0
         while diff > tol:
-            return 
+            R = spla.gmres(L,-func(x))[0]
+            x_new = x + R
+            diff = np.abs(np.linalg.norm(x_new) - np.linalg.norm(x))
+            x = x_new
+            index += 1
+            if index == 99:
+                print('Max itertiaons hit, exiting.')
+                sys.exit()
+        return x_new, index
