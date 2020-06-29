@@ -2,7 +2,6 @@
 """
 Created on Sun Oct  6 23:35:39 2019
 
-@author: ragusa
 """
 import sys
 import numpy as np
